@@ -1,29 +1,31 @@
 // SPDX-FileCopyrightText: 2023 ThingPulse Ltd., https://thingpulse.com
 // SPDX-License-Identifier: MIT
 
+#include "secrets.h"
+
 #pragma once
 
 // ****************************************************************************
 // User settings
 // ****************************************************************************
 // WiFi
-const char *SSID = "yourssid";
-const char *WIFI_PWD = "yourpassw0rd";
+const char *SSID = SECRET_WIFI_SSID;
+const char *WIFI_PWD = SECRET_WIFI_PASSWORD;
 
-// timezone Europe/Zurich as per https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-#define TIMEZONE "CET-1CEST,M3.5.0,M10.5.0/3"
+// timezone america/chicago as per https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+#define TIMEZONE "CST6CDT,M3.2.0,M11.1.0"
 
 #define UPDATE_INTERVAL_MINUTES 10
 
 // uncomment to get "08/23/2022 02:55:02 pm" instead of "23.08.2022 14:55:02"
-// #define DATE_TIME_FORMAT_US
+#define DATE_TIME_FORMAT_US
 
 // values in metric or imperial system?
-bool IS_METRIC = true;
+bool IS_METRIC = false;
 
 // OpenWeatherMap Settings
 // Sign up here to get an API key: https://docs.thingpulse.com/how-tos/openweathermap-key/
-const String OPEN_WEATHER_MAP_API_KEY = "";
+const String OPEN_WEATHER_MAP_API_KEY = SECRET_OPEN_WEATHER_MAP_API_KEY;
 
 /*
 Go to https://openweathermap.org/find?q= and search for a location. Go through the
@@ -31,14 +33,12 @@ result set and select the entry closest to the actual location you want to displ
 data for. It'll be a URL like https://openweathermap.org/city/2657896. The number
 at the end is what you assign to the constant below.
  */
-const String OPEN_WEATHER_MAP_LOCATION_ID = "2657896";
-const String DISPLAYED_LOCATION_NAME = "Zurich";
-//String OPEN_WEATHER_MAP_LOCATION_ID = "3833367";
-//String DISPLAYED_LOCATION_NAME = "Ushuaia";
-//String OPEN_WEATHER_MAP_LOCATION_ID = "2147714";
-//String DISPLAYED_LOCATION_NAME = "Sydney";
-//String OPEN_WEATHER_MAP_LOCATION_ID = "5879400";
-//String DISPLAYED_LOCATION_NAME = "Anchorage";
+const String OPEN_WEATHER_MAP_LOCATION_ID = "5262634";
+const String DISPLAYED_LOCATION_NAME = "Menomonie";
+//String OPEN_WEATHER_MAP_LOCATION_ID = "4381072";
+//String DISPLAYED_LOCATION_NAME = "Chesterfield";
+//String OPEN_WEATHER_MAP_LOCATION_ID = "5254218";
+//String DISPLAYED_LOCATION_NAME = "Germantown";
 
 // Supported languages: https://openweathermap.org/current#multi
 const String OPEN_WEATHER_MAP_LANGUAGE = "en";
