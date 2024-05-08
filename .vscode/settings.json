@@ -2,5 +2,19 @@
     "files.associations": {
         "functional": "cpp",
         "tuple": "cpp"
-    }
+    },
+    "cSpell.words": [
+      "cdraw",
+      "ctext",
+      "extrem",
+      "getserver",
+      "mkgmtime",
+      "opensans",
+      "platformio",
+      "Psram",
+      "servermode",
+      "SNTP",
+      "timeinfo",
+      "tnow"
+    ]
 }

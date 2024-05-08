@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include <stdint.h>
+#include <string>
+
 // ****************************************************************************
 // User settings
 // ****************************************************************************
@@ -73,6 +76,7 @@ typedef struct DayForecast {
 RectangleDef timeSpritePos = {0, 0, 320, 88};
 
 const String WIND_ICON_NAMES[] = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+const String WIND_DIR_NAMES[] = {"N", "NO", "O", "SO", "S", "SW", "W", "NW"};
 
 // average approximation for the actual length of the synodic month
 const double LUNAR_MONTH = 29.530588853;
@@ -80,17 +84,28 @@ const uint8_t NUMBER_OF_MOON_IMAGES = 32;
 
 // 2: portrait, on/off switch right side -> 0/0 top left
 // 3: landscape, on/off switch at the top -> 0/0 top left
-#define TFT_ROTATION 2
+#define TFT_ROTATION 3
 // all other TFT_xyz flags are defined in platformio.ini as PIO build flags
 
 // 0: portrait, on/off switch right side -> 0/0 top left
 // 1: landscape, on/off switch at the top -> 0/0 top left
-#define TOUCH_ROTATION 0
+#define TOUCH_ROTATION 1
 #define TOUCH_SENSITIVITY 40
+#ifdef COLOR_KIT_GRANDE
 #define TOUCH_SDA 23
 #define TOUCH_SCL 22
+#else
+// TouchDown
+#define TOUCH_SDA 21
+#define TOUCH_SCL 22
+#define TOUCH_IRQ 27
+#define BUZZER_PIN 26
+#endif
+
 // Initial LCD Backlight brightness
 #define TFT_LED_BRIGHTNESS 200
+// Turn off LCD after given number of seconds (comment out for always on)
+#define TFT_SLEEP_DELAY_SECONDS 60
 
 // the medium blue in the TP logo is 0x0067B0 which converts to 0x0336 in 16bit RGB565
 #define TFT_TP_BLUE 0x0336
@@ -117,6 +132,8 @@ const uint8_t forecastHoursUtc[] = {0, 3, 6, 9, 12, 15, 18, 21};
 // 5 day / 3 hour forecast data => 8 forecasts/day => 40 total
 #define NUMBER_OF_FORECASTS 40
 #define NUMBER_OF_DAY_FORECASTS 4
+#define NUMBER_OF_CLOSE_FORECASTS 8
+//#define SKIP_TODAYS_FORECAST
 
 #define APP_NAME "ESP32 Weather Station Touch"
 #define VERSION "1.0.0"

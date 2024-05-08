@@ -8,6 +8,8 @@
 #include <FS.h>
 #include <LittleFS.h>
 #include <OpenFontRender.h>
+
+#define DISABLE_ALL_LIBRARY_WARNINGS
 #include <TFT_eSPI.h>
 
 // JPEG decoder library
