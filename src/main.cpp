@@ -22,8 +22,6 @@
 #include "settings.h"
 #include "util.h"
 
-
-
 // ----------------------------------------------------------------------------
 // Globals
 // ----------------------------------------------------------------------------
@@ -65,9 +63,10 @@ Task clockTask(1000, TASK_FOREVER, &drawTimeAndDate);
 // ----------------------------------------------------------------------------
 // setup() & loop()
 // ----------------------------------------------------------------------------
-void setup(void) {
+void setup(void)
+{
   Serial.begin(115200);
-  delay(1000);
+  delay(5000);
 
   logBanner();
   logMemoryStats();
@@ -97,26 +96,31 @@ void setup(void) {
   clockTask.enable();
 }
 
-void loop(void) {
+void loop(void)
+{
   unsigned long currentMillis = millis();
   unsigned long dly;
 
 #ifdef TFT_SLEEP_DELAY_SECONDS
   dly = 50;
 
-  if (ts.touched() > 0) {
+  if (ts.touched() > 0)
+  {
     lastTouchedTime = currentMillis;
     log_i("TFT touched");
     TS_Point p = ts.getPoint();
     log_i("Touch coordinates: x=%d, y=%d", p.x, p.y);
 
-    if (!isTftAwake()) {
+    if (!isTftAwake())
+    {
       scheduler.resume();
       tftSleepOut(&tft);
       log_i("TFT woke up");
     }
-  } else if (isTftAwake() &&
-             (currentMillis > lastTouchedTime + TFT_SLEEP_DELAY_SECONDS * 1000)) {
+  }
+  else if (isTftAwake() &&
+           (currentMillis > lastTouchedTime + TFT_SLEEP_DELAY_SECONDS * 1000))
+  {
     log_i("TFT going to sleep");
     tftSleepIn(&tft);
     clearTimeAndDate();
@@ -124,18 +128,21 @@ void loop(void) {
   }
 
   if (lastUpdateMillis > 0 &&
-      (currentMillis - lastUpdateMillis) > updateIntervalMillis) {
-    lastUpdateMillis = 0;    // force redraw
+      (currentMillis - lastUpdateMillis) > updateIntervalMillis)
+  {
+    lastUpdateMillis = 0; // force redraw
     clearWeather();
   }
 #endif
 
-  if (isTftAwake()) {
+  if (isTftAwake())
+  {
     // update if
     // - never (successfully) updated before OR
     // - last sync too far back
     if (lastUpdateMillis == 0 ||
-        (currentMillis - lastUpdateMillis) > updateIntervalMillis) {
+        (currentMillis - lastUpdateMillis) > updateIntervalMillis)
+    {
       repaintWeather();
     }
 
@@ -145,7 +152,8 @@ void loop(void) {
 
   // make sure to not extend the interval by drawing time
   currentMillis = millis();
-  while (timeUpdate <= currentMillis) {
+  while (timeUpdate <= currentMillis)
+  {
     timeUpdate += dly;
   }
   delay(timeUpdate - currentMillis);
@@ -155,16 +163,21 @@ void loop(void) {
 // Functions
 // ----------------------------------------------------------------------------
 
-static void drawTimeString(const char* timeStr, int16_t x, int16_t y) {
-  if (timeStr[0] == '0') {
+static void drawTimeString(const char *timeStr, int16_t x, int16_t y)
+{
+  if (timeStr[0] == '0')
+  {
     int extraChar = ofr.getTextWidth("0");
     ofr.cdrawString(timeStr + 1, x + extraChar, y);
-  } else {
+  }
+  else
+  {
     ofr.cdrawString(timeStr, x, y);
   }
 }
 
-static void drawAstro(uint16_t top, uint16_t left, uint16_t right) {
+static void drawAstro(uint16_t top, uint16_t left, uint16_t right)
+{
   const uint16_t width = right - left;
   const uint16_t center = left + width / 2;
 
@@ -198,10 +211,12 @@ static void drawAstro(uint16_t top, uint16_t left, uint16_t right) {
 
   // Moon icon
   int imageIndex = round(result.moon.age * NUMBER_OF_MOON_IMAGES / LUNAR_MONTH);
-  if (imageIndex == NUMBER_OF_MOON_IMAGES) imageIndex = NUMBER_OF_MOON_IMAGES - 1;
+  if (imageIndex == NUMBER_OF_MOON_IMAGES)
+    imageIndex = NUMBER_OF_MOON_IMAGES - 1;
   ui.drawBmp("/moon/m-phase-" + String(imageIndex) + ".bmp", center - 37, top + 10);
 
-  if (tft.width() < tft.height()) {
+  if (tft.width() < tft.height())
+  {
     ofr.setFontSize(14);
     ofr.cdrawString(MOON_PHASES[result.moon.phase.index].c_str(), center, top + 95);
   }
@@ -210,7 +225,8 @@ static void drawAstro(uint16_t top, uint16_t left, uint16_t right) {
         result.moon.phase.name.c_str(), result.moon.illumination, result.moon.age, imageIndex);
 }
 
-static void drawCurrentWeather(uint16_t top, uint16_t left, uint16_t right) {
+static void drawCurrentWeather(uint16_t top, uint16_t left, uint16_t right)
+{
   const uint16_t width = right - left;
   const uint16_t center = left + width / 2;
   // re-use variable throughout function
@@ -227,19 +243,22 @@ static void drawCurrentWeather(uint16_t top, uint16_t left, uint16_t right) {
 
   // temperature incl. symbol
   String temp = String(currentWeather.temp, 1) + "°";
-  if (OPEN_WEATHER_MAP_LANGUAGE == "de") {
+  if (OPEN_WEATHER_MAP_LANGUAGE == "de")
+  {
     temp.replace('.', ',');
   }
 
   int windAngleIndex = round(currentWeather.windDeg * 8 / 360);
-  if (windAngleIndex > 7) {
+  if (windAngleIndex > 7)
+  {
     windAngleIndex = 0;
   }
 
   String windSpeed = IS_METRIC ? String(currentWeather.windSpeed * 3.6, 0) + " km/h"
                                : String(currentWeather.windSpeed, 0) + " mph";
 
-  if (width >= 300) {
+  if (width >= 300)
+  {
     // temperature, slightly shifted to the right to find better balance due to the ° symbol
     ofr.setFontSize(48);
     ofr.cdrawString(temp.c_str(), center + 10, top + 30);
@@ -260,7 +279,9 @@ static void drawCurrentWeather(uint16_t top, uint16_t left, uint16_t right) {
 
     // wind speed
     ofr.cdrawString(windSpeed.c_str(), right - 43, top + 110);
-  } else {
+  }
+  else
+  {
     int rulerX = right - 75;
 
     // temperature, slightly shifted to the right to find better balance due to the ° symbol
@@ -279,7 +300,8 @@ static void drawCurrentWeather(uint16_t top, uint16_t left, uint16_t right) {
   }
 }
 
-static void drawTodaysForecast(uint16_t top, uint16_t left, uint16_t right) {
+static void drawTodaysForecast(uint16_t top, uint16_t left, uint16_t right)
+{
   static const uint16_t fillColor = tft.color565(0x66, 0x55, 0x00);
   static const uint16_t lineColor = tft.color565(0x77, 0x77, 0x11);
 
@@ -299,14 +321,17 @@ static void drawTodaysForecast(uint16_t top, uint16_t left, uint16_t right) {
   float minTemp = 1000;
   float maxTemp = -1000;
 
-  for (int i = 0; i < numberOfForecasts; i++) {
+  for (int i = 0; i < numberOfForecasts; i++)
+  {
     minTemp = min(minTemp, forecasts[i].temp);
     maxTemp = max(maxTemp, forecasts[i].temp);
   }
   float factorY = (maxTemp > minTemp) ? (height - 11) / (maxTemp - minTemp) : 1;
 
-  for (int i = 0; i < numberOfForecasts; i++) {
-    if (i > 0) {
+  for (int i = 0; i < numberOfForecasts; i++)
+  {
+    if (i > 0)
+    {
       int32_t x1 = left + (i - 1) * distX;
       int32_t y1 = top + height;
       int32_t x2 = x1;
@@ -320,14 +345,17 @@ static void drawTodaysForecast(uint16_t top, uint16_t left, uint16_t right) {
       // time
       time_t forecastTimeUtc = forecasts[i - 1].observationTime;
       struct tm *forecastLocalTime = localtime(&forecastTimeUtc);
-      #ifdef DATE_TIME_FORMAT_US
+#ifdef DATE_TIME_FORMAT_US
       int hour = forecastLocalTime->tm_hour > 12 ? forecastLocalTime->tm_hour - 12 : forecastLocalTime->tm_hour;
-      if (hour == 0) { hour = 12; }
+      if (hour == 0)
+      {
+        hour = 12;
+      }
       char ampm = forecastLocalTime->tm_hour >= 12 ? 'p' : 'a';
       snprintf(ctext, sizeof(ctext), "%2d:%02d%c", hour, forecastLocalTime->tm_min, ampm);
-      #else
+#else
       snprintf(ctext, sizeof(ctext), "%2d:%02d", forecastLocalTime->tm_hour, forecastLocalTime->tm_min);
-      #endif
+#endif
       ofr.drawString(ctext, x1, y1 + 1);
 
       // temperature
@@ -337,40 +365,47 @@ static void drawTodaysForecast(uint16_t top, uint16_t left, uint16_t right) {
   }
 }
 
-static void drawForecast(uint16_t top, uint16_t left, uint16_t right) {
+static void drawForecast(uint16_t top, uint16_t left, uint16_t right)
+{
   const uint16_t width = right - left;
   const uint16_t center = left + width / 2;
 
   int numberOfDays = min(NUMBER_OF_DAY_FORECASTS, width / 70);
 
-  DayForecast* dayForecasts = calculateDayForecasts(forecasts);
-  for (int i = 0; i < numberOfDays; i++) {
+  DayForecast *dayForecasts = calculateDayForecasts(forecasts);
+  for (int i = 0; i < numberOfDays; i++)
+  {
     log_i("[%d] condition code: %d, hour: %d, temp: %.1f/%.1f", dayForecasts[i].day,
           dayForecasts[i].conditionCode, dayForecasts[i].conditionHour, dayForecasts[i].minTemp,
           dayForecasts[i].maxTemp);
   }
 
   int singleWidthHalf = width / (2 * numberOfDays);
-  for (int i = 0; i < numberOfDays; i++) {
+  for (int i = 0; i < numberOfDays; i++)
+  {
     int x = left + singleWidthHalf * ((i * 2) + 1);
     ofr.setFontSize(24);
     ofr.cdrawString(WEEKDAYS_ABBR[dayForecasts[i].day].c_str(), x, top + 5);
     ofr.setFontSize(18);
     String minTemp(dayForecasts[i].minTemp, 0);
     String maxTemp(dayForecasts[i].maxTemp, 0);
-    if (minTemp != maxTemp) {
+    if (minTemp != maxTemp)
+    {
       ofr.cdrawString(String(minTemp + "-" + maxTemp + "°").c_str(), x, top + 37);
-    } else {
+    }
+    else
+    {
       ofr.cdrawString(String(minTemp + "°").c_str(), x, top + 37);
     }
     ui.drawBmp("/weather-small/" + getWeatherIconName(dayForecasts[i].conditionCode, false) + ".bmp", x - 25, top + 65);
   }
 }
 
-static void drawProgress(const char *text, int8_t percentage) {
+static void drawProgress(const char *text, int8_t percentage)
+{
   ofr.setFontSize(24);
   int pbWidth = tft.width() - 100;
-  int pbX = (tft.width() - pbWidth)/2;
+  int pbX = (tft.width() - pbWidth) / 2;
   int pbY = 260;
   int progressTextY = 210;
 
@@ -379,26 +414,31 @@ static void drawProgress(const char *text, int8_t percentage) {
   ui.drawProgressBar(pbX, pbY, pbWidth, 15, percentage, TFT_WHITE, TFT_TP_BLUE);
 }
 
-static void drawHorizSeparator(uint16_t y) {
+static void drawHorizSeparator(uint16_t y)
+{
   const int16_t padding = 10;
   tft.drawFastHLine(padding, y, tft.width() - 2 * padding, 0x4228);
 }
 
-static void drawHorizSeparator(uint16_t x, uint16_t width, uint16_t y) {
+static void drawHorizSeparator(uint16_t x, uint16_t width, uint16_t y)
+{
   const int16_t padding = 10;
   tft.drawFastHLine(x + padding, y, width - 2 * padding, 0x4228);
 }
 
-static void drawVertSeparator(uint16_t x, uint16_t y, uint16_t height) {
+static void drawVertSeparator(uint16_t x, uint16_t y, uint16_t height)
+{
   const int16_t padding = 10;
   tft.drawFastVLine(x, y + padding, height - 2 * padding, 0x4228);
 }
 
-static void clearTimeAndDate() {
+static void clearTimeAndDate()
+{
   tft.fillRect(0, 5, tft.width(), timeSprite.height(), TFT_BLACK);
 }
 
-static void drawTimeAndDate() {
+static void drawTimeAndDate()
+{
   static uint32_t timeOffsetX = 0;
   static uint32_t locationOffsetX = 0;
 
@@ -411,7 +451,8 @@ static void drawTimeAndDate() {
 
   // Location
   ofr.setFontSize(16);
-  if (locationOffsetX == 0) {
+  if (locationOffsetX == 0)
+  {
     locationOffsetX = ofr.getTextWidth(DISPLAYED_LOCATION_NAME.c_str());
     locationOffsetX = thirdSpriteWidth - locationOffsetX / 2;
   }
@@ -419,13 +460,13 @@ static void drawTimeAndDate() {
 
   // Date
   ofr.cdrawString(
-    String(WEEKDAYS[getCurrentWeekday()] + ", " + getCurrentTimestamp(UI_DATE_FORMAT)).c_str(),
-    twoThirdSpriteWidth, 0
-  );
+      String(WEEKDAYS[getCurrentWeekday()] + ", " + getCurrentTimestamp(UI_DATE_FORMAT)).c_str(),
+      twoThirdSpriteWidth, 0);
 
   // Time
-  ofr.setFontSize(53);  // 48
-  if (timeOffsetX == 0) {
+  ofr.setFontSize(53); // 48
+  if (timeOffsetX == 0)
+  {
 #ifdef UI_TIME_FORMAT_CENTER
     timeOffsetX = ofr.getTextWidth("%s", getCurrentTimestamp(UI_TIME_FORMAT_CENTER).c_str());
 #else
@@ -435,10 +476,13 @@ static void drawTimeAndDate() {
   }
 
   String timeStr = getCurrentTimestamp(UI_TIME_FORMAT);
-  if (timeStr.charAt(0) == '0') {
+  if (timeStr.charAt(0) == '0')
+  {
     int extraChar = ofr.getTextWidth("0");
     ofr.drawString(timeStr.c_str() + 1, timeOffsetX + extraChar, 15);
-  } else {
+  }
+  else
+  {
     ofr.drawString(timeStr.c_str(), timeOffsetX, 15);
   }
 
@@ -448,44 +492,63 @@ static void drawTimeAndDate() {
   ofr.setDrawer(tft);
 }
 
-static String getWeatherIconName(uint16_t id, bool today) {
+static String getWeatherIconName(uint16_t id, bool today)
+{
   // Weather condition codes: https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
 
   // For the 8xx group we also have night versions of the icons.
-  if (today && id/100 == 8 &&
+  if (today && id / 100 == 8 &&
       (currentWeather.observationTime < currentWeather.sunrise ||
-       currentWeather.observationTime > currentWeather.sunset)) {
+       currentWeather.observationTime > currentWeather.sunset))
+  {
     id += 1000;
   }
 
-  if (id/100 == 2) return "thunderstorm";
-  if (id/100 == 3) return "drizzle";
-  if (id == 500) return "light-rain";
-  if (id == 504) return "extrem-rain";
-  else if (id == 511) return "sleet";
-  else if (id/100 == 5) return "rain";
-  if (id >= 611 && id <= 616) return "sleet";
-  else if (id/100 == 6) return "snow";
-  if (id/100 == 7) return "fog";
-  if (id == 800) return "clear-day";
-  if (id >= 801 && id <= 803) return "partly-cloudy-day";
-  else if (id/100 == 8) return "cloudy";
+  if (id / 100 == 2)
+    return "thunderstorm";
+  if (id / 100 == 3)
+    return "drizzle";
+  if (id == 500)
+    return "light-rain";
+  if (id == 504)
+    return "extrem-rain";
+  else if (id == 511)
+    return "sleet";
+  else if (id / 100 == 5)
+    return "rain";
+  if (id >= 611 && id <= 616)
+    return "sleet";
+  else if (id / 100 == 6)
+    return "snow";
+  if (id / 100 == 7)
+    return "fog";
+  if (id == 800)
+    return "clear-day";
+  if (id >= 801 && id <= 803)
+    return "partly-cloudy-day";
+  else if (id / 100 == 8)
+    return "cloudy";
   // night icons
-  if (id == 1800) return "clear-night";
-  if (id == 1801) return "partly-cloudy-night";
-  else if (id/100 == 18) return "cloudy";
+  if (id == 1800)
+    return "clear-night";
+  if (id == 1801)
+    return "partly-cloudy-night";
+  else if (id / 100 == 18)
+    return "cloudy";
 
   return "unknown";
 }
 
-static void initJpegDecoder() {
-    // The JPEG image can be scaled by a factor of 1, 2, 4, or 8 (default: 0)
+static void initJpegDecoder()
+{
+  // The JPEG image can be scaled by a factor of 1, 2, 4, or 8 (default: 0)
   TJpgDec.setJpgScale(1);
   // The decoder must be given the exact name of the rendering function
   TJpgDec.setCallback(pushImageToTft);
 }
 
-static void initOpenFontRender() {
+static void initOpenFontRender()
+{
   ofr.loadFont(opensans, sizeof(opensans));
   ofr.setDrawer(tft);
   ofr.setFontColor(TFT_WHITE);
@@ -494,9 +557,11 @@ static void initOpenFontRender() {
 
 // Function will be called as a callback during decoding of a JPEG file to
 // render each block to the TFT.
-static bool pushImageToTft(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
+static bool pushImageToTft(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
+{
   // Stop further decoding as image is running off bottom of screen
-  if (y >= tft.height()) {
+  if (y >= tft.height())
+  {
     return 0;
   }
 
@@ -544,11 +609,13 @@ static void repaint_original_unused() {
 }
 #endif
 
-static void clearWeather() {
+static void clearWeather()
+{
   tft.fillRect(0, 91, tft.width(), tft.height(), TFT_BLACK);
 }
 
-static void repaintWeather() {
+static void repaintWeather()
+{
   wakeModemSleep();
 
   clearWeather();
@@ -558,37 +625,43 @@ static void repaintWeather() {
   updateData(false);
   lastUpdateMillis = millis();
 
-  if (tft.width() < tft.height()) {
+  if (tft.width() < tft.height())
+  {
     drawCurrentWeather(90, 0, tft.width());
     drawHorizSeparator(230);
     drawForecast(230, 0, tft.width());
     drawHorizSeparator(355);
     drawAstro(360, 0, tft.width());
-  } else {
+  }
+  else
+  {
     drawVertSeparator(centerWidth, 90, tft.height() - 90);
     drawCurrentWeather(90, 0, centerWidth);
-    //drawHorizSeparator(0, centerWidth, 240);
+    // drawHorizSeparator(0, centerWidth, 240);
     drawTodaysForecast(240, 0, centerWidth);
     drawForecast(90, centerWidth, tft.width());
     drawHorizSeparator(centerWidth, centerWidth, 210);
     drawAstro(220, centerWidth, tft.width());
   }
 
-  delay(100);   // try to prevent crippled serial output
+  delay(100); // try to prevent crippled serial output
   setModemSleep();
 }
 
-static void updateData(boolean updateProgressBar) {
-  if(updateProgressBar) drawProgress("Updating weather...", 70);
+static void updateData(boolean updateProgressBar)
+{
+  if (updateProgressBar)
+    drawProgress("Updating weather...", 70);
   OpenWeatherMapCurrent *currentWeatherClient = new OpenWeatherMapCurrent();
   currentWeatherClient->setMetric(IS_METRIC);
   currentWeatherClient->setLanguage(OPEN_WEATHER_MAP_LANGUAGE);
   currentWeatherClient->updateCurrentById(&currentWeather, OPEN_WEATHER_MAP_API_KEY, OPEN_WEATHER_MAP_LOCATION_ID);
   delete currentWeatherClient;
   currentWeatherClient = nullptr;
-  log_i("Current weather in %s: %s, %.1f °C", currentWeather.cityName, currentWeather.description.c_str(), currentWeather.feelsLike);
+  log_i("Current weather in %s: %s, %.1f °%s", currentWeather.cityName, currentWeather.description.c_str(), currentWeather.feelsLike, (IS_METRIC ? "C" : "F"));
 
-  if(updateProgressBar) drawProgress("Updating forecast...", 90);
+  if (updateProgressBar)
+    drawProgress("Updating forecast...", 90);
   OpenWeatherMapForecast *forecastClient = new OpenWeatherMapForecast();
   forecastClient->setMetric(IS_METRIC);
   forecastClient->setLanguage(OPEN_WEATHER_MAP_LANGUAGE);
